@@ -14,9 +14,6 @@
 #include <cadmium/logger/common_loggers.hpp>
 #include <cadmium/io/iestream.hpp>
 
-#include "../atomics/Fusion.hpp"
-#include "../atomics/Sensor.hpp"
-
 #include <NDTime.hpp>
 
 const char* t1_IN = "./inputs/Temperature_Sensor_Values1 copy.txt";
