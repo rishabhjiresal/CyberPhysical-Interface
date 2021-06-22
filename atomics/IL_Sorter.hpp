@@ -1,5 +1,5 @@
-#ifndef BOOST_SIMULATION_SENSOR_HPP
-#define BOOST_SIMULATION_SENSOR_HPP
+#ifndef IL_SORTER_HPP
+#define IL_SORTER_HPP
 
 #include <stdio.h>
 #include <cadmium/modeling/ports.hpp>
@@ -17,27 +17,103 @@
 #include <limits>
 #include <random>
 
+#include "../data_structures/Sensor_Message.hpp"
+#include "../data_structures/Sorter_Message.hpp"
 
+#include "../drivers/Rearrange.h"
 using namespace cadmium;
 using namespace std;
 
-#include <cadmium/io/iestream.hpp>
-    using namespace cadmium;
-    using namespace std;
 
-    //Port definition
-    struct Sensor_defs{
-      struct out : public out_port<double> {};
-    };
+struct IL_Sorter_defs
+{
+  struct s1 : public in_port<Sensor_Message>{};
+  struct s2 : public in_port<Sensor_Message>{};
+  struct s3 : public in_port<Sensor_Message>{};
+  struct s4 : public in_port<Sensor_Message>{};
+  struct s5 : public in_port<Sensor_Message>{};
+  struct s6 : public in_port<Sensor_Message>{};
+  struct s7 : public in_port<Sensor_Message>{};
+  struct s8 : public in_port<Sensor_Message>{};
+
+  struct out : public out_port<std::vector<Sorter_Message>> {};
+};
+
+template<typename TIME>
+class IL_Sorter
+{
+  using defs=IL_Sorter_defs;
+  	public:
+
+      static bool compare (const Sensor_Message& a, const Sensor_Message& b) {
+          return a.name < b.name;
+      }
+
+      IL_Sorter() noexcept {
+        state.active = false;
+      }
+
+      struct state_type {
+        vector<Sensor_Message> values_from_sensors;
+        vector<Sorter_Message> values_from_sorter;
+        bool active;
+        }; state_type state;
+
+        using input_ports=std::tuple<typename defs::s1, typename defs::s2, typename defs::s3, typename defs::s4, typename defs::s5, typename defs::s6, typename defs::s7, typename defs::s8>;
+      	using output_ports=std::tuple<typename defs::out>;
+
+        void internal_transition (){
+          state.active = false;
+         }
+
+        void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs){
+          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s1>(mbs)[0]);
+          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s2>(mbs)[0]);
+          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s3>(mbs)[0]); 
+          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s4>(mbs)[0]);
+          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s5>(mbs)[0]);
+          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s6>(mbs)[0]);
+          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s7>(mbs)[0]);
+          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s8>(mbs)[0]);
+
+          sort(state.values_from_sensors.begin(), state.values_from_sensors.end(), compare);
+          // for(int i=0; i<state.values_from_sensors.size(); ++i)
+          //   std::cout << state.values_from_sensors[i] << ' ';
+          //rearrange(state.values_from_sensors, state.values_from_sorter);
 
 
-    template<typename TIME>
-    class Sensor : public iestream_input<double,TIME, Sensor_defs>{
-      public:
-        Sensor() = default;
-        Sensor(const char* file_path) : iestream_input<double,TIME, Sensor_defs>(file_path) {}
-        Sensor(const char* file_path, TIME t) : iestream_input<float,double, Sensor_defs>(file_path) {}
-    };
+          //Sort(values_from_sensors, values_from_sorter);
+         //Here goes the wrapper
+        
+          //If the values are not up to the mark, we can discard them here if that can be done.
+      		state.active = true;
+      	}
+
+        void confluence_transition(TIME e, typename make_message_bags<input_ports>::type mbs) {
+        internal_transition();
+        external_transition(TIME(), std::move(mbs));
+      }
+
+      typename make_message_bags<output_ports>::type output() const {
+        typename make_message_bags<output_ports>::type bags;
+          get_messages<typename defs::out>(bags).push_back(state.values_from_sensors);  
+        return bags;
+      }
+
+      TIME time_advance() const {
+        if(state.active) {
+          return TIME("00:00:00");
+        }
+        return std::numeric_limits<TIME>::infinity();
+
+      }
+
+      friend std::ostringstream& operator<<(std::ostringstream& os, const typename IL_Sorter<TIME>::state_type& i) {
+                 os << "Sent data to fusion " ;
+                 return os;
+               }
+      };
+
 
 
 #endif

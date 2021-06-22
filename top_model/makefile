@@ -2,9 +2,8 @@ CC=g++-11
 CFLAGS=-std=c++17
 COMPILE_TARGET=NUCLEO_H743ZI2
 FLASH_TARGET=NODE_F401RE1
-EXECUTABLE_NAME=Testing_Algorithm_TOP
+EXECUTABLE_NAME=CPS_Interface_TOP
 
-LIBDIR=/opt/homebrew/Cellar/gsl/2.6/include
 INCLUDRT_ARM_MBED=-I ../../cadmium/include
 INCLUDEDESTIMES=-I ../../cadmium/DESTimes/include
 INCLUDEBOOST=-I ../../boost_1_70_0
@@ -17,20 +16,18 @@ flash:
 	sudo cp ../BUILD/$(COMPILE_TARGET)/GCC_ARM-CADMIUM/*.bin /media/$(USER)/$(FLASH_TARGET)/
 	$(info *** FLASH MAKE TAKE ~10 Seconds! DO NOT RESET WHILE COM PORT LED IS FLASHING! ***)
 
-gslall: main fusion
-	$(CC) -g -o $(EXECUTABLE_NAME) main.o Algorithm.o /opt/homebrew/Cellar/gsl/2.6/lib/libgsl.a /opt/homebrew/Cellar/gsl/2.6/lib/libgslcblas.a -lm
 
-eigenall: main eigenfusion
-	$(CC) -g -o $(EXECUTABLE_NAME) main.o EigenTest.o
+all: main SensorMessage
+	$(CC) -g -o $(EXECUTABLE_NAME) main.o SensorMessage.o
+
+SensorMessage: ../data_structures/Sensor_Message.cpp
+	$(CC) -g -c $(CFLAGS) $(INCLUDERT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../data_structures/Sensor_Message.cpp -o SensorMessage.o
 
 main: main.cpp
-	$(CC) -g -c $(CFLAGS) -I$(LIBDIR) $(INCLUDRT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) main.cpp -o main.o
+	$(CC) -g -c $(CFLAGS) $(INCLUDRT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) main.cpp -o main.o
 
-eigenfusion: ../drivers/EigenTest.cpp
-	$(CC) -g -c $(CFLAGS) -I$(LIBDIR) $(INCLUDRT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../drivers/EigenTest.cpp -o EigenTest.o
-
-fusion: ../drivers/Algorithm.cpp
-	$(CC) -g -c $(CFLAGS) -I$(LIBDIR) $(INCLUDRT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../drivers/Algorithm.cpp -o Algorithm.o
+# fusion: ../drivers/Algorithm.cpp
+# 	$(CC) -g -c $(CFLAGS) $(INCLUDRT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../drivers/Algorithm.cpp -o Algorithm.o
 
 clean:
 	rm -f $(EXECUTABLE_NAME) *.o *~

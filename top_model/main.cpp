@@ -14,18 +14,20 @@
 #include <cadmium/logger/common_loggers.hpp>
 #include <cadmium/io/iestream.hpp>
 
+#include "../atomics/CPL_Sensor.hpp"
+#include "../atomics/IL_Sorter.hpp"
 #include <NDTime.hpp>
 
-const char* t1_IN = "./inputs/Temperature_Sensor_Values1 copy.txt";
-const char* t2_IN = "./inputs/Temperature_Sensor_Values2 copy.txt";
-const char* t3_IN = "./inputs/Temperature_Sensor_Values3 copy.txt";
-const char* t4_IN = "./inputs/Temperature_Sensor_Values4 copy.txt";
-const char* t5_IN = "./inputs/Temperature_Sensor_Values5 copy.txt";
-const char* t6_IN = "./inputs/Temperature_Sensor_Values6 copy.txt";
-const char* t7_IN = "./inputs/Temperature_Sensor_Values7 copy.txt";
-const char* t8_IN = "./inputs/Temperature_Sensor_Values8 copy.txt";
-const char* t9_IN = "./inputs/Temperature_Sensor_Values9 copy.txt";
-const char* t10_IN = "./inputs/Temperature_Sensor_Values10 copy.txt";
+const char* t1_IN = "./inputs/Temperature_Sensor_Values1_copy.txt";
+const char* t2_IN = "./inputs/Temperature_Sensor_Values2_copy.txt";
+const char* t3_IN = "./inputs/Temperature_Sensor_Values3_copy.txt";
+const char* t4_IN = "./inputs/Temperature_Sensor_Values4_copy.txt";
+const char* t5_IN = "./inputs/Temperature_Sensor_Values5_copy.txt";
+const char* t6_IN = "./inputs/Temperature_Sensor_Values6_copy.txt";
+const char* t7_IN = "./inputs/Temperature_Sensor_Values7_copy.txt";
+const char* t8_IN = "./inputs/Temperature_Sensor_Values8_copy.txt";
+// const char* t9_IN = "./inputs/Temperature_Sensor_Values9 copy.txt";
+// const char* t10_IN = "./inputs/Temperature_Sensor_Values10 copy.txt";
 
 using namespace std;
 
@@ -49,7 +51,7 @@ int main(int argc, char ** argv) {
 
     /*************** Loggers *******************/
 
-    static std::ofstream out_data("SensorFusion_Cadmium_output.txt");
+    static std::ofstream out_data("CPS_Interface_Cadmium_output.txt");
     struct oss_sink_provider{
       static std::ostream& sink(){
         return out_data;
@@ -71,42 +73,42 @@ int main(int argc, char ** argv) {
   using AtomicModelPtr=std::shared_ptr<cadmium::dynamic::modeling::model>;
   using CoupledModelPtr=std::shared_ptr<cadmium::dynamic::modeling::coupled<TIME>>;
 
-  AtomicModelPtr Sensor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<Sensor, TIME>("Sensor1", t1_IN);
-  AtomicModelPtr Sensor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<Sensor, TIME>("Sensor2", t2_IN);
-  AtomicModelPtr Sensor3 = cadmium::dynamic::translate::make_dynamic_atomic_model<Sensor, TIME>("Sensor3", t3_IN);
-  AtomicModelPtr Sensor4 = cadmium::dynamic::translate::make_dynamic_atomic_model<Sensor, TIME>("Sensor4", t4_IN);
-  AtomicModelPtr Sensor5 = cadmium::dynamic::translate::make_dynamic_atomic_model<Sensor, TIME>("Sensor5", t5_IN);
-  AtomicModelPtr Sensor6 = cadmium::dynamic::translate::make_dynamic_atomic_model<Sensor, TIME>("Sensor6", t6_IN);
-  AtomicModelPtr Sensor7 = cadmium::dynamic::translate::make_dynamic_atomic_model<Sensor, TIME>("Sensor7", t7_IN);
-  AtomicModelPtr Sensor8 = cadmium::dynamic::translate::make_dynamic_atomic_model<Sensor, TIME>("Sensor8", t8_IN);
-  AtomicModelPtr Sensor9 = cadmium::dynamic::translate::make_dynamic_atomic_model<Sensor, TIME>("Sensor9", t9_IN);
-  
-  AtomicModelPtr Fusion1 = cadmium::dynamic::translate::make_dynamic_atomic_model<Fusion, TIME>("Fusion1");
-  
+  AtomicModelPtr CPL_Sensor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor1", t1_IN);
+  AtomicModelPtr CPL_Sensor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor2", t2_IN);
+  AtomicModelPtr CPL_Sensor3 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor3", t3_IN);
+  AtomicModelPtr CPL_Sensor4 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor4", t4_IN);
+  AtomicModelPtr CPL_Sensor5 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor5", t5_IN);
+  AtomicModelPtr CPL_Sensor6 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor6", t6_IN);
+  AtomicModelPtr CPL_Sensor7 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor7", t7_IN);
+  AtomicModelPtr CPL_Sensor8 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor8", t8_IN);
+  // AtomicModelPtr CPL_Sensor9 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor9", t9_IN);
+  AtomicModelPtr IL_Sorter1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_Sorter, TIME>("IL_Sorter1");
+
   cadmium::dynamic::modeling::Ports iports_TOP = {};
   cadmium::dynamic::modeling::Ports oports_TOP = {};
 
-  cadmium::dynamic::modeling::Models submodels_TOP = {Sensor1, Sensor2, Sensor3, Sensor4, Sensor5, Sensor6, Sensor7, Sensor8, Fusion1};
+  cadmium::dynamic::modeling::Models submodels_TOP = {CPL_Sensor1, CPL_Sensor2, CPL_Sensor3, CPL_Sensor4, CPL_Sensor5, CPL_Sensor6, CPL_Sensor7, CPL_Sensor8, IL_Sorter1};
 
 cadmium::dynamic::modeling::EICs eics_TOP = {};
 cadmium::dynamic::modeling::EOCs eocs_TOP = {};
 
 cadmium::dynamic::modeling::ICs ics_TOP = {
-cadmium::dynamic::translate::make_IC<Sensor_defs::out, Fusion_defs::s1T>("Sensor1","Fusion1"),
 
-  cadmium::dynamic::translate::make_IC<Sensor_defs::out, Fusion_defs::s2T>("Sensor2","Fusion1"),
+cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s1>("CPL_Sensor1","IL_Sorter1"),
 
-  cadmium::dynamic::translate::make_IC<Sensor_defs::out, Fusion_defs::s3T>("Sensor3","Fusion1"),
+  cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s2>("CPL_Sensor2","IL_Sorter1"),
 
-  cadmium::dynamic::translate::make_IC<Sensor_defs::out, Fusion_defs::s4T>("Sensor4","Fusion1"),
+  cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s3>("CPL_Sensor3","IL_Sorter1"),
 
-  cadmium::dynamic::translate::make_IC<Sensor_defs::out, Fusion_defs::s5T>("Sensor5","Fusion1"),
+  cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s4>("CPL_Sensor4","IL_Sorter1"),
 
-  cadmium::dynamic::translate::make_IC<Sensor_defs::out, Fusion_defs::s6T>("Sensor6","Fusion1"),
+  cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s5>("CPL_Sensor5","IL_Sorter1"),
 
-  cadmium::dynamic::translate::make_IC<Sensor_defs::out, Fusion_defs::s7T>("Sensor7","Fusion1"),
+  cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s6>("CPL_Sensor6","IL_Sorter1"),
 
-  cadmium::dynamic::translate::make_IC<Sensor_defs::out, Fusion_defs::s8T>("Sensor8","Fusion1")
+  cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s7>("CPL_Sensor7","IL_Sorter1"),
+
+  cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s8>("CPL_Sensor8","IL_Sorter1")
 
 
 };

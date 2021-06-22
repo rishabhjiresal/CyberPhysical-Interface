@@ -1,5 +1,5 @@
-#ifndef BOOST_SIMULATION_FUSION_HPP
-#define BOOST_SIMULATION_FUSION_HPP
+#ifndef IL_FUSION_HPP
+#define IL_FUSION_HPP
 
 #include <stdio.h>
 #include <cadmium/modeling/ports.hpp>
@@ -17,9 +17,8 @@
 #include <limits>
 #include <random>
 
-//#include "../drivers/Algorithm.h"
+#include "../drivers/Sensor_Fusion_Algorithms/Algorithm.h"
 
-#include "../drivers/EigenTest.h"
 
 using namespace cadmium;
 using namespace std;
@@ -71,7 +70,7 @@ class Fusion
         void internal_transition (){
           state.LastT = state.FusedT;
           state.active = false;
-        }
+         }
 
         void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs){
           for(const auto &x : get_messages<typename defs::s1T>(mbs)) {
@@ -98,26 +97,17 @@ class Fusion
           for(const auto &x : get_messages<typename defs::s8T>(mbs)) {
             state.sT[7] = x;
           }
-
-          state.FusedT = 0;
-
+        
          //Here goes the wrapper
-        // sdm_calculator(state.sT, state.number_of_sensors);
-eigen_vector_calculation( sdm_calculator(state.sT,state.number_of_sensors),
-				state.number_of_sensors);
-
-        //  state.FusedT = faulty_sensor_and_sensor_fusion(
-        // 		compute_integrated_support_degree_score(
-        //             state.sT,
-        // 		    compute_alpha(eigen_value_calculation(
-        //                 sdm_calculator(state.sT,state.number_of_sensors),state.number_of_sensors),state.number_of_sensors),
-
-        //             compute_phi(
-        //                 compute_alpha(
-        //                     eigen_value_calculation(
-        //                         sdm_calculator(
-				// state.sT,state.number_of_sensors),
-				// state.number_of_sensors),state.number_of_sensors),state.number_of_sensors), sdm_calculator(state.sT,state.number_of_sensors),state.criterion,state.number_of_sensors),state.sT,state.criterion,state.number_of_sensors);
+         state.FusedT = 
+faulty_sensor_and_sensor_fusion(
+compute_integrated_support_degree_score(state.sT,
+            compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.number_of_sensors))), 
+            compute_phi(compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.number_of_sensors))), state.number_of_sensors),
+            sdm_calculator(state.sT, state.number_of_sensors),
+            state.criterion, 
+            state.number_of_sensors), state.sT, state.criterion, state.number_of_sensors );
+  
 
           //If the values are not up to the mark, we can discard them here if that can be done.
       		state.active = true;
@@ -130,8 +120,7 @@ eigen_vector_calculation( sdm_calculator(state.sT,state.number_of_sensors),
 
       typename make_message_bags<output_ports>::type output() const {
         typename make_message_bags<output_ports>::type bags;
-          get_messages<typename defs::outT>(bags).push_back(state.FusedT);
-
+          get_messages<typename defs::outT>(bags).push_back(state.FusedT);  
         return bags;
       }
 
@@ -140,6 +129,7 @@ eigen_vector_calculation( sdm_calculator(state.sT,state.number_of_sensors),
           return TIME("00:00:00");
         }
         return std::numeric_limits<TIME>::infinity();
+       // return TIME("01:00:00");
 
       }
 
