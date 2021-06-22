@@ -36,7 +36,7 @@ struct IL_Sorter_defs
   struct s7 : public in_port<Sensor_Message>{};
   struct s8 : public in_port<Sensor_Message>{};
 
-  struct out : public out_port<std::vector<Sorter_Message>> {};
+  struct out : public out_port<vector<vector<Sorter_Message>>> {};
 };
 
 template<typename TIME>
@@ -55,7 +55,7 @@ class IL_Sorter
 
       struct state_type {
         vector<Sensor_Message> values_from_sensors;
-        vector<Sorter_Message> values_from_sorter;
+        vector<vector<Sorter_Message>> send_to_fusion;
         bool active;
         }; state_type state;
 
@@ -76,16 +76,15 @@ class IL_Sorter
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s7>(mbs)[0]);
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s8>(mbs)[0]);
 
+          vector<vector<Sensor_Message>> rearranged_sensor_message;
           sort(state.values_from_sensors.begin(), state.values_from_sensors.end(), compare);
-          // for(int i=0; i<state.values_from_sensors.size(); ++i)
-          //   std::cout << state.values_from_sensors[i] << ' ';
-          //rearrange(state.values_from_sensors, state.values_from_sorter);
+          rearranged_sensor_message = rearrange(state.values_from_sensors);
 
-
+          state.send_to_fusion = add_values_to_sorter_message(rearranged_sensor_message);
+    //       for(int i=0; i<example.size(); i++) // Ensure that you don't access any elements that don't exist
+		// for(int p=0; p<example[i].size(); p++) // You may not have had 10 in here before, only go to size().
+		// cout << example[i][p] << " \n";
           //Sort(values_from_sensors, values_from_sorter);
-         //Here goes the wrapper
-        
-          //If the values are not up to the mark, we can discard them here if that can be done.
       		state.active = true;
       	}
 

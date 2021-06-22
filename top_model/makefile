@@ -17,11 +17,14 @@ flash:
 	$(info *** FLASH MAKE TAKE ~10 Seconds! DO NOT RESET WHILE COM PORT LED IS FLASHING! ***)
 
 
-all: main SensorMessage
-	$(CC) -g -o $(EXECUTABLE_NAME) main.o SensorMessage.o
+all: main SensorMessage rearrange
+	$(CC) -g -o $(EXECUTABLE_NAME) main.o SensorMessage.o Rearrange.o
 
 SensorMessage: ../data_structures/Sensor_Message.cpp
 	$(CC) -g -c $(CFLAGS) $(INCLUDERT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../data_structures/Sensor_Message.cpp -o SensorMessage.o
+
+rearrange: ../drivers/Rearrange.cpp
+	$(CC) -g -c $(CFLAGS) $(INCLUDERT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../drivers/Rearrange.cpp -o Rearrange.o
 
 main: main.cpp
 	$(CC) -g -c $(CFLAGS) $(INCLUDRT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) main.cpp -o main.o
