@@ -81,9 +81,9 @@ class IL_Sorter
           rearranged_sensor_message = rearrange(state.values_from_sensors);
 
           state.send_to_fusion = add_values_to_sorter_message(rearranged_sensor_message);
-    //       for(int i=0; i<example.size(); i++) // Ensure that you don't access any elements that don't exist
-		// for(int p=0; p<example[i].size(); p++) // You may not have had 10 in here before, only go to size().
-		// cout << example[i][p] << " \n";
+    //       for(int i=0; i<state.send_to_fusion.size(); i++) // Ensure that you don't access any elements that don't exist
+		// for(int p=0; p<state.send_to_fusion[i].size(); p++) // You may not have had 10 in here before, only go to size().
+		// cout << state.send_to_fusion[i][p] << " \n";
           //Sort(values_from_sensors, values_from_sorter);
       		state.active = true;
       	}
@@ -95,7 +95,7 @@ class IL_Sorter
 
       typename make_message_bags<output_ports>::type output() const {
         typename make_message_bags<output_ports>::type bags;
-          get_messages<typename defs::out>(bags).push_back(state.values_from_sensors);  
+          get_messages<typename defs::out>(bags).push_back(state.send_to_fusion);  
         return bags;
       }
 
