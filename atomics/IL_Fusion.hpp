@@ -48,6 +48,8 @@ class IL_Fusion
         vector<vector<Sorter_Message>> from_sorter;
         vector<double> Fused;
         vector<Fused_Message> ValueToSend;
+        string type;
+        double value;
         vector<double> sT;
         Fused_Message message;
         double criterion;
@@ -75,22 +77,21 @@ class IL_Fusion
               state.sT.push_back(state.from_sorter[i][p].value);
             }
                    state.Fused.push_back( 
-faulty_sensor_and_sensor_fusion(
-compute_integrated_support_degree_score(state.sT,
-            compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), 
-            compute_phi(compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), state.sT.size()),
-            sdm_calculator(state.sT, state.sT.size()),
-            state.criterion, 
-            state.sT.size()), state.sT, state.criterion, state.sT.size() ));
+                    faulty_sensor_and_sensor_fusion(
+                      compute_integrated_support_degree_score(state.sT,
+                          compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), 
+                              compute_phi(compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), state.sT.size()),
+                                  sdm_calculator(state.sT, state.sT.size()),
+                                  state.criterion, 
+                                 state.sT.size()), state.sT, state.criterion, state.sT.size() ));
+              
+              state.type = state.from_sorter[i][p-1].sensor_type;
+              state.value = state.Fused[i];
+              state.message = Fused_Message(state.type, state.value);
+              state.ValueToSend.push_back(state.message);
 
-            state.message.type = state.from_sorter[i][p].sensor_type;
-            state.message.value = state.Fused[i];
-            state.ValueToSend.push_back(state.message);
-            state.Fused.clear();
             state.sT.clear();
-            state.Fused.shrink_to_fit();
             state.sT.shrink_to_fit();
-  
            } 
           }
           else { //For single type of sensor input
@@ -99,25 +100,29 @@ compute_integrated_support_degree_score(state.sT,
                   state.sT.push_back(state.from_sorter[0][p].value);
             }
                state.Fused.push_back( 
-faulty_sensor_and_sensor_fusion(
-compute_integrated_support_degree_score(state.sT,
-            compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), 
-            compute_phi(compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), state.sT.size()),
-            sdm_calculator(state.sT, state.sT.size()),
-            state.criterion, 
-            state.sT.size()), state.sT, state.criterion, state.sT.size() ));
+                  faulty_sensor_and_sensor_fusion(
+                      compute_integrated_support_degree_score(state.sT,
+                          compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), 
+                          compute_phi(compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), state.sT.size()),
+                          sdm_calculator(state.sT, state.sT.size()),
+                            state.criterion, 
+                                 state.sT.size()), state.sT, state.criterion, state.sT.size() ));
 
-            state.message.type = state.from_sorter[0][p].sensor_type;
-            state.message.value = state.Fused[0];
-            state.ValueToSend.push_back(state.message);
+              state.type = state.from_sorter[0][p-1].sensor_type;
+              state.value = state.Fused[i];
+              state.message = Fused_Message(state.type, state.value);
+              state.ValueToSend.push_back(state.message);
+
+              state.sT.clear();
+
+          }
+
             state.Fused.clear();
             state.sT.clear();
             state.Fused.shrink_to_fit();
             state.sT.shrink_to_fit();
-          }
            state.from_sorter.clear();
           state.from_sorter.shrink_to_fit();
-
         //  for(int i=0; i<state.ValueToSend.size(); ++i) // Ensure that you don't access any elements that don't exist
 		    //     cout << state.ValueToSend[i] << " \n";
 
@@ -131,7 +136,7 @@ compute_integrated_support_degree_score(state.sT,
 
       typename make_message_bags<output_ports>::type output() const {
         typename make_message_bags<output_ports>::type bags;
-         // get_messages<typename defs::outT>(bags).push_back(state.FusedT);  
+          get_messages<typename defs::out>(bags).push_back(state.ValueToSend);  
         return bags;
       }
 

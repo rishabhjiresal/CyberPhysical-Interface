@@ -1,4 +1,4 @@
-CC=g++-11
+CC=g++
 CFLAGS=-std=c++17
 COMPILE_TARGET=NUCLEO_H743ZI2
 FLASH_TARGET=NODE_F401RE1
@@ -6,7 +6,7 @@ EXECUTABLE_NAME=CPS_Interface_TOP
 
 INCLUDRT_ARM_MBED=-I ../../cadmium/include
 INCLUDEDESTIMES=-I ../../cadmium/DESTimes/include
-INCLUDEBOOST=-I ../../boost_1_70_0
+INCLUDEBOOST=-I ../../boost_1_76_0
 
 
 embedded:

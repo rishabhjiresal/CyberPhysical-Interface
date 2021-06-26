@@ -1,21 +1,19 @@
 {
     "configurations": [
         {
-            "name": "Mac",
+            "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
                 "../cadmium/include",
                 "../cadmium/DESTimes/include",
-                "../boost_1_70_0",
-                "/opt/homebrew/Cellar/gsl/2.6/include",
+                "../boost_1_76_0",
                 "mbed-os"
             ],
             "defines": [],
-            "macFrameworkPath": [],
-            "compilerPath": "/opt/homebrew/bin/gcc-11",
+            "compilerPath": "/usr/bin/g++",
             "cStandard": "gnu17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "macos-gcc-arm64"
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ],
     "version": 4
