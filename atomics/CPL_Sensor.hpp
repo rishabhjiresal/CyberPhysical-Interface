@@ -77,11 +77,7 @@ using defs=CPL_Sensor_defs;
 
     		typename make_message_bags<output_ports>::type output() const {
     			typename make_message_bags<output_ports>::type bags;
-    			//if(state.lastTemp != state.outputTemp) {
     				get_messages<typename defs::out>(bags).push_back(state.outputTemp);
-    				//}
-            //if(state.lastHum != state.outputHum) {
-                         //}
             return bags;
           }
 

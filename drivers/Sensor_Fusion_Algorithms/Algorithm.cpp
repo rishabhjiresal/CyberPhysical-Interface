@@ -12,7 +12,7 @@
  *
  *  \return A 1D array which is the Support Degree Matrix.
  */
-MatrixXd sdm_calculator(double sensorinputs[], int size){
+MatrixXd sdm_calculator(vector<double> sensorinputs, int size){
 
     int i,j,k=0;
    // printf("size %d\n", size);
@@ -120,7 +120,7 @@ MatrixXd compute_phi(MatrixXd list_of_alphas, int size){
      return list_of_phi;
  }
 
-MatrixXd compute_integrated_support_degree_score(double sensorinputs[],
+MatrixXd compute_integrated_support_degree_score(vector<double> sensorinputs,
              MatrixXd list_of_alphas, MatrixXd list_of_phi, MatrixXd dmatrix,
              double criterion, int size){
                  MatrixXd Z, Z_final;
@@ -142,7 +142,7 @@ Z_final = Z.rowwise().sum();
    return Z_final;
  }
 
- double faulty_sensor_and_sensor_fusion(MatrixXd Z, double inputsensors[], double criterion,
+ double faulty_sensor_and_sensor_fusion(MatrixXd Z, vector<double> inputsensors, double criterion,
  		int size){
 
      int i, tempfault=0,j=0;

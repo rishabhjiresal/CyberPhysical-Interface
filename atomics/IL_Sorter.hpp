@@ -67,6 +67,8 @@ class IL_Sorter
          }
 
         void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs){
+          state.send_to_fusion.clear();
+          state.send_to_fusion.shrink_to_fit();
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s1>(mbs)[0]);
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s2>(mbs)[0]);
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s3>(mbs)[0]); 
@@ -81,10 +83,13 @@ class IL_Sorter
           rearranged_sensor_message = rearrange(state.values_from_sensors);
 
           state.send_to_fusion = add_values_to_sorter_message(rearranged_sensor_message);
+          rearranged_sensor_message.clear();
+          rearranged_sensor_message.shrink_to_fit();
+          state.values_from_sensors.clear();
+          state.values_from_sensors.shrink_to_fit();
     //       for(int i=0; i<state.send_to_fusion.size(); i++) // Ensure that you don't access any elements that don't exist
 		// for(int p=0; p<state.send_to_fusion[i].size(); p++) // You may not have had 10 in here before, only go to size().
 		// cout << state.send_to_fusion[i][p] << " \n";
-          //Sort(values_from_sensors, values_from_sorter);
       		state.active = true;
       	}
 
@@ -95,7 +100,7 @@ class IL_Sorter
 
       typename make_message_bags<output_ports>::type output() const {
         typename make_message_bags<output_ports>::type bags;
-          get_messages<typename defs::out>(bags).push_back(state.send_to_fusion);  
+          get_messages<typename defs::out>(bags).push_back(state.send_to_fusion);
         return bags;
       }
 

@@ -17,6 +17,9 @@
 #include <limits>
 #include <random>
 
+#include "../data_structures/Sorter_Message.hpp"
+#include "../data_structures/Fused_Message.hpp"
+
 #include "../drivers/Sensor_Fusion_Algorithms/Algorithm.h"
 
 
@@ -24,92 +27,100 @@ using namespace cadmium;
 using namespace std;
 
 
-struct Fusion_defs
+struct IL_Fusion_defs
 {
-  struct s1T : public in_port<double>{};
-  struct s2T : public in_port<double>{};
-  struct s3T : public in_port<double>{};
-  struct s4T : public in_port<double>{};
-  struct s5T : public in_port<double>{};
-  struct s6T : public in_port<double>{};
-  struct s7T : public in_port<double>{};
-  struct s8T : public in_port<double>{};
+  struct in : public in_port<vector<vector<Sorter_Message>>> {};
 
-  struct outT : public out_port<double> {};
+  struct out : public out_port<vector<Fused_Message>> {};
 };
 
 template<typename TIME>
-class Fusion
+class IL_Fusion
 {
-  using defs=Fusion_defs;
+  using defs=IL_Fusion_defs;
   	public:
-      Fusion() noexcept {
-        for(int i=0;i<8;i++) {
-          state.sT[i] = 0;
-        }
-        state.FusedT = 0;
-        state.LastT = 0;
-        state.number_of_sensors = 8;
+      IL_Fusion() noexcept {
         state.criterion = 0.95;
         state.active = false;
       }
 
       struct state_type {
-        double sT [8];
-        double FusedT;
-        double LastT;
+        vector<vector<Sorter_Message>> from_sorter;
+        vector<double> Fused;
+        vector<Fused_Message> ValueToSend;
+        vector<double> sT;
+        Fused_Message message;
         double criterion;
+        bool multiple_types;
         int number_of_sensors;
         bool active;
         }; state_type state;
 
-        using input_ports=std::tuple<typename defs::s1T, typename defs::s2T, typename defs::s3T, typename defs::s4T, typename defs::s5T, typename defs::s6T, typename defs::s7T, typename defs::s8T>;
-      	using output_ports=std::tuple<typename defs::outT>;
+        using input_ports=std::tuple<typename defs::in>;
+      	using output_ports=std::tuple<typename defs::out>;
 
 
         void internal_transition (){
-          state.LastT = state.FusedT;
           state.active = false;
          }
 
         void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs){
-          for(const auto &x : get_messages<typename defs::s1T>(mbs)) {
-            state.sT[0] = x;
-          }
-          for(const auto &x : get_messages<typename defs::s2T>(mbs)) {
-            state.sT[1] = x;
-          }
-          for(const auto &x : get_messages<typename defs::s3T>(mbs)) {
-            state.sT[2] = x;
-          }
-          for(const auto &x : get_messages<typename defs::s4T>(mbs)) {
-            state.sT[3] = x;
-          }
-          for(const auto &x : get_messages<typename defs::s5T>(mbs)) {
-            state.sT[4] = x;
-          }
-          for(const auto &x : get_messages<typename defs::s6T>(mbs)) {
-            state.sT[5] = x;
-          }
-          for(const auto &x : get_messages<typename defs::s7T>(mbs)) {
-            state.sT[6] = x;
-          }
-          for(const auto &x : get_messages<typename defs::s8T>(mbs)) {
-            state.sT[7] = x;
-          }
-        
-         //Here goes the wrapper
-         state.FusedT = 
+         
+          int i,p;
+          state.from_sorter = get_messages<typename IL_Fusion_defs::in>(mbs)[0];
+          if(state.from_sorter.size()>1) { //For Mulitple type of sensor inputs
+            state.multiple_types = true;
+           for(i=0; i<state.from_sorter.size(); i++) {
+		        for(p=0; p<state.from_sorter[i].size(); p++) {
+              state.sT.push_back(state.from_sorter[i][p].value);
+            }
+                   state.Fused.push_back( 
 faulty_sensor_and_sensor_fusion(
 compute_integrated_support_degree_score(state.sT,
-            compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.number_of_sensors))), 
-            compute_phi(compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.number_of_sensors))), state.number_of_sensors),
-            sdm_calculator(state.sT, state.number_of_sensors),
+            compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), 
+            compute_phi(compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), state.sT.size()),
+            sdm_calculator(state.sT, state.sT.size()),
             state.criterion, 
-            state.number_of_sensors), state.sT, state.criterion, state.number_of_sensors );
-  
+            state.sT.size()), state.sT, state.criterion, state.sT.size() ));
 
-          //If the values are not up to the mark, we can discard them here if that can be done.
+            state.message.type = state.from_sorter[i][p].sensor_type;
+            state.message.value = state.Fused[i];
+            state.ValueToSend.push_back(state.message);
+            state.Fused.clear();
+            state.sT.clear();
+            state.Fused.shrink_to_fit();
+            state.sT.shrink_to_fit();
+  
+           } 
+          }
+          else { //For single type of sensor input
+            state.multiple_types = false;
+		        for(p=0; p<state.from_sorter[0].size(); p++) {
+                  state.sT.push_back(state.from_sorter[0][p].value);
+            }
+               state.Fused.push_back( 
+faulty_sensor_and_sensor_fusion(
+compute_integrated_support_degree_score(state.sT,
+            compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), 
+            compute_phi(compute_alpha(eigen_value_calculation(sdm_calculator(state.sT, state.sT.size()))), state.sT.size()),
+            sdm_calculator(state.sT, state.sT.size()),
+            state.criterion, 
+            state.sT.size()), state.sT, state.criterion, state.sT.size() ));
+
+            state.message.type = state.from_sorter[0][p].sensor_type;
+            state.message.value = state.Fused[0];
+            state.ValueToSend.push_back(state.message);
+            state.Fused.clear();
+            state.sT.clear();
+            state.Fused.shrink_to_fit();
+            state.sT.shrink_to_fit();
+          }
+           state.from_sorter.clear();
+          state.from_sorter.shrink_to_fit();
+
+        //  for(int i=0; i<state.ValueToSend.size(); ++i) // Ensure that you don't access any elements that don't exist
+		    //     cout << state.ValueToSend[i] << " \n";
+
       		state.active = true;
       	}
 
@@ -120,7 +131,7 @@ compute_integrated_support_degree_score(state.sT,
 
       typename make_message_bags<output_ports>::type output() const {
         typename make_message_bags<output_ports>::type bags;
-          get_messages<typename defs::outT>(bags).push_back(state.FusedT);  
+         // get_messages<typename defs::outT>(bags).push_back(state.FusedT);  
         return bags;
       }
 
@@ -129,13 +140,11 @@ compute_integrated_support_degree_score(state.sT,
           return TIME("00:00:00");
         }
         return std::numeric_limits<TIME>::infinity();
-       // return TIME("01:00:00");
-
       }
 
-      friend std::ostringstream& operator<<(std::ostringstream& os, const typename Fusion<TIME>::state_type& i) {
-                 os << "Sent Data by Fusion: " << i.FusedT ;
+      friend std::ostringstream& operator<<(std::ostringstream& os, const typename IL_Fusion<TIME>::state_type& i) {
+                 os << "Sent Data by Fusion: " ;
                  return os;
                }
       };
-      #endif
+#endif

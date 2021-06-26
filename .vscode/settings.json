@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "iosfwd": "cpp",
+        "__locale": "cpp",
+        "locale": "cpp",
+        "*.ipp": "cpp",
+        "*.tcc": "cpp",
+        "regex": "cpp"
+    }
+}
