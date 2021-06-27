@@ -29,9 +29,9 @@ using namespace std;
 
 struct IL_Fusion_defs
 {
-  struct in : public in_port<vector<vector<Sorter_Message>>> {};
+  struct in : public in_port<Vector_Vector_Sorter_Message> {};
 
-  struct out : public out_port<vector<Fused_Message>> {};
+  struct out : public out_port<Vector_Fused_Message> {};
 };
 
 template<typename TIME>
@@ -45,9 +45,9 @@ class IL_Fusion
       }
 
       struct state_type {
-        vector<vector<Sorter_Message>> from_sorter;
+        Vector_Vector_Sorter_Message from_sorter;
         vector<double> Fused;
-        vector<Fused_Message> ValueToSend;
+        Vector_Fused_Message ValueToSend;
         string type;
         double value;
         vector<double> sT;
@@ -70,11 +70,11 @@ class IL_Fusion
          
           int i,p;
           state.from_sorter = get_messages<typename IL_Fusion_defs::in>(mbs)[0];
-          if(state.from_sorter.size()>1) { //For Mulitple type of sensor inputs
+          if(state.from_sorter.message.size()>1) { //For Mulitple type of sensor inputs
             state.multiple_types = true;
-           for(i=0; i<state.from_sorter.size(); i++) {
-		        for(p=0; p<state.from_sorter[i].size(); p++) {
-              state.sT.push_back(state.from_sorter[i][p].value);
+           for(i=0; i<state.from_sorter.message.size(); i++) {
+		        for(p=0; p<state.from_sorter.message[i].size(); p++) {
+              state.sT.push_back(state.from_sorter.message[i][p].value);
             }
                    state.Fused.push_back( 
                     faulty_sensor_and_sensor_fusion(
@@ -85,10 +85,10 @@ class IL_Fusion
                                   state.criterion, 
                                  state.sT.size()), state.sT, state.criterion, state.sT.size() ));
               
-              state.type = state.from_sorter[i][p-1].sensor_type;
+              state.type = state.from_sorter.message[i][p-1].sensor_type;
               state.value = state.Fused[i];
               state.message = Fused_Message(state.type, state.value);
-              state.ValueToSend.push_back(state.message);
+              state.ValueToSend.message.push_back(state.message);
 
             state.sT.clear();
             state.sT.shrink_to_fit();
@@ -96,8 +96,8 @@ class IL_Fusion
           }
           else { //For single type of sensor input
             state.multiple_types = false;
-		        for(p=0; p<state.from_sorter[0].size(); p++) {
-                  state.sT.push_back(state.from_sorter[0][p].value);
+		        for(p=0; p<state.from_sorter.message[0].size(); p++) {
+                  state.sT.push_back(state.from_sorter.message[0][p].value);
             }
                state.Fused.push_back( 
                   faulty_sensor_and_sensor_fusion(
@@ -108,10 +108,10 @@ class IL_Fusion
                             state.criterion, 
                                  state.sT.size()), state.sT, state.criterion, state.sT.size() ));
 
-              state.type = state.from_sorter[0][p-1].sensor_type;
+              state.type = state.from_sorter.message[0][p-1].sensor_type;
               state.value = state.Fused[i];
               state.message = Fused_Message(state.type, state.value);
-              state.ValueToSend.push_back(state.message);
+              state.ValueToSend.message.push_back(state.message);
 
               state.sT.clear();
 
@@ -121,8 +121,8 @@ class IL_Fusion
             state.sT.clear();
             state.Fused.shrink_to_fit();
             state.sT.shrink_to_fit();
-           state.from_sorter.clear();
-          state.from_sorter.shrink_to_fit();
+           state.from_sorter.message.clear();
+          state.from_sorter.message.shrink_to_fit();
         //  for(int i=0; i<state.ValueToSend.size(); ++i) // Ensure that you don't access any elements that don't exist
 		    //     cout << state.ValueToSend[i] << " \n";
 
@@ -142,7 +142,7 @@ class IL_Fusion
 
       TIME time_advance() const {
         if(state.active) {
-          return TIME("00:00:00");
+          return TIME("00:00:01");
         }
         return std::numeric_limits<TIME>::infinity();
       }

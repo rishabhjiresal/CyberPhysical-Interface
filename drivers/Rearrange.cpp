@@ -74,5 +74,42 @@ vector<vector<Sorter_Message>> add_values_to_sorter_message(vector<vector<Sensor
         if(LuxCounter>1) {sorter_message.push_back(lux);LuxCounter = 1;}
         if(PIRCounter>1) {sorter_message.push_back(pir);PIRCounter = 1;}
     }
+    temperature.clear();
+    humidity.clear();
+    co2.clear();
+    lux.clear();
+    pir.clear();
+    temperature.shrink_to_fit();
+    humidity.shrink_to_fit();
+    co2.shrink_to_fit();
+    lux.shrink_to_fit();
+    pir.shrink_to_fit();
     return sorter_message;
+}
+
+vector<Assigner_Message> add_values_to_assigner_message(vector<Fused_Message>& sensor_message) {
+    vector<Assigner_Message> assigner_message;
+     for(int i = 0; i<sensor_message.size();i++) {
+         if(sensor_message[i].type == "Temperature") {
+                Assigner_Message temp("Temperature", sensor_message[i].value, "°C/°F");
+                assigner_message.push_back(temp);
+            }
+            if(sensor_message[i].type == "Humidity") {
+               Assigner_Message temp("Humidity", sensor_message[i].value, "RF");
+                assigner_message.push_back(temp);
+            }
+            if(sensor_message[i].type == "CarbonDioxide") {
+                Assigner_Message temp("CarbonDioxide", sensor_message[i].value, "PPM");
+                assigner_message.push_back(temp);
+            }
+            if(sensor_message[i].type == "Luminosity") {
+                Assigner_Message temp("Luminosity", sensor_message[i].value, "lux");
+                assigner_message.push_back(temp);
+            }
+            if(sensor_message[i].type == "PIR") {
+                Assigner_Message temp("PIR", sensor_message[i].value, "state");
+                assigner_message.push_back(temp);
+            }
+     }
+     return assigner_message;
 }

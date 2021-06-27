@@ -17,6 +17,7 @@
 #include "../atomics/CPL_Sensor.hpp"
 #include "../atomics/IL_Sorter.hpp"
 #include "../atomics/IL_Fusion.hpp"
+#include "../atomics/IL_Assigner.hpp"
 #include <NDTime.hpp>
 
 const char* t1_IN = "./inputs/Temperature_Sensor_Values1_copy.txt";
@@ -85,11 +86,12 @@ int main(int argc, char ** argv) {
   // AtomicModelPtr CPL_Sensor9 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor9", t9_IN);
   AtomicModelPtr IL_Sorter1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_Sorter, TIME>("IL_Sorter1");
   AtomicModelPtr IL_Fusion1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_Fusion, TIME>("IL_Fusion1");
+  AtomicModelPtr IL_Assigner1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_Assigner, TIME>("IL_Assigner1");
 
   cadmium::dynamic::modeling::Ports iports_TOP = {};
   cadmium::dynamic::modeling::Ports oports_TOP = {};
 
-  cadmium::dynamic::modeling::Models submodels_TOP = {CPL_Sensor1, CPL_Sensor2, CPL_Sensor3, CPL_Sensor4, CPL_Sensor5, CPL_Sensor6, CPL_Sensor7, CPL_Sensor8, IL_Sorter1, IL_Fusion1};
+  cadmium::dynamic::modeling::Models submodels_TOP = {CPL_Sensor1, CPL_Sensor2, CPL_Sensor3, CPL_Sensor4, CPL_Sensor5, CPL_Sensor6, CPL_Sensor7, CPL_Sensor8, IL_Sorter1, IL_Fusion1, IL_Assigner1};
 
 cadmium::dynamic::modeling::EICs eics_TOP = {};
 cadmium::dynamic::modeling::EOCs eocs_TOP = {};
@@ -112,7 +114,9 @@ cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s1>("
 
   cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s8>("CPL_Sensor8","IL_Sorter1"),
 
-  cadmium::dynamic::translate::make_IC<IL_Sorter_defs::out, IL_Fusion_defs::in>("IL_Sorter1", "IL_Fusion1")
+  cadmium::dynamic::translate::make_IC<IL_Sorter_defs::out, IL_Fusion_defs::in>("IL_Sorter1", "IL_Fusion1"),
+
+  cadmium::dynamic::translate::make_IC<IL_Fusion_defs::out, IL_Assigner_defs::in>("IL_Fusion1", "IL_Assigner1"),
 
 
 };

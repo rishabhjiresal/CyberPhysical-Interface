@@ -25,3 +25,21 @@ istream& operator>> (istream& is, Sorter_Message& msg) {
   is >> msg.value;
   return is;
 }
+
+ostream& operator<<(ostream& os, const Vector_Vector_Sorter_Message& msg) {
+    for(int i=0; i<msg.message.size(); i++) { // Ensure that you don't access any elements that don't exist
+		for(int p=0; p<msg.message[i].size(); p++) { // You may not have had 10 in here before, only go to size().
+		os << msg.message[i][p];
+    if(p != msg.message[i].size()-1) {
+    os << ", ";
+    }
+    }
+    if(i != msg.message.size()-1) {
+    os << ", ";
+    }
+    else {
+      os<<" ";
+    }
+    }
+    return os;
+}

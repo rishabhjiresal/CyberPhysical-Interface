@@ -36,7 +36,7 @@ struct IL_Sorter_defs
   struct s7 : public in_port<Sensor_Message>{};
   struct s8 : public in_port<Sensor_Message>{};
 
-  struct out : public out_port<vector<vector<Sorter_Message>>> {};
+  struct out : public out_port<Vector_Vector_Sorter_Message> {};
 };
 
 template<typename TIME>
@@ -55,7 +55,7 @@ class IL_Sorter
 
       struct state_type {
         vector<Sensor_Message> values_from_sensors;
-        vector<vector<Sorter_Message>> send_to_fusion;
+        Vector_Vector_Sorter_Message send_to_fusion; 
         bool active;
         }; state_type state;
 
@@ -67,8 +67,8 @@ class IL_Sorter
          }
 
         void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs){
-          state.send_to_fusion.clear();
-          state.send_to_fusion.shrink_to_fit();
+          state.send_to_fusion.message.clear();
+          state.send_to_fusion.message.shrink_to_fit();
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s1>(mbs)[0]);
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s2>(mbs)[0]);
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s3>(mbs)[0]); 
@@ -106,7 +106,7 @@ class IL_Sorter
 
       TIME time_advance() const {
         if(state.active) {
-          return TIME("00:00:00");
+          return TIME("00:00:02");
         }
         return std::numeric_limits<TIME>::infinity();
 

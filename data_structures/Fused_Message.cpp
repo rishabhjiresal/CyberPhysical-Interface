@@ -24,3 +24,16 @@ istream& operator>> (istream& is, Fused_Message& msg) {
   is >> msg.value;
   return is;
 }
+
+ostream& operator<<(ostream& os, const Vector_Fused_Message& msg) {
+  for(auto i=0;i<msg.message.size();++i){
+    os<<msg.message[i].type << " " << msg.message[i].value;
+    if(i != msg.message.size()-1) {
+      os << ", ";
+    }
+    else {
+      os<<" ";
+    }
+  }
+  return os;
+}
