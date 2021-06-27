@@ -38,7 +38,7 @@ MatrixXd sdm_calculator(vector<double> sensorinputs, int size){
         }
     }
     MatrixXd dmatrix1 = Map<MatrixXd>( dmatrix, size, size );
- //   cout<<dmatrix1<<endl;
+  //  cout<<dmatrix1<<endl;
     return dmatrix1;
 }
 
@@ -56,10 +56,11 @@ MatrixXd sdm_calculator(vector<double> sensorinputs, int size){
  *  \return A 1D array of EigenValues in descending order for the given dmatrix.
  */
 MatrixXd eigen_value_calculation(MatrixXd dmatrix){
-    EigenSolver<MatrixXd> solver(dmatrix);
+    SelfAdjointEigenSolver<MatrixXd> solver(dmatrix);
     MatrixXd eigenvalues;
     eigenvalues = solver.eigenvalues().real();
-  //  cout << "The eigenvalues of dmatrix are:" << endl << eigenvalues << endl;
+    eigenvalues = eigenvalues.colwise().reverse().eval();
+   // cout << "The eigenvalues of dmatrix are:" << endl << eigenvalues << endl;
     return eigenvalues;
 //cout << "The eigenvectors of dmatrix are:" << endl << solver.eigenvectors() << endl;
 }
@@ -85,9 +86,10 @@ MatrixXd eigen_value_calculation(MatrixXd dmatrix){
 //  *  \return A 1D array of EigenVectors for the given EigenValue.
 //  */
 MatrixXd eigen_vector_calculation(MatrixXd dmatrix){
-    EigenSolver<MatrixXd> solver(dmatrix);
+    SelfAdjointEigenSolver<MatrixXd> solver(dmatrix);
     MatrixXd eigenvectors;
     eigenvectors = solver.eigenvectors().real();
+    eigenvectors = eigenvectors.rowwise().reverse().eval();
   // cout << "The eigenvectors of dmatrix are:" << endl << eigenvectors << endl;
     return eigenvectors;
  }
@@ -134,7 +136,8 @@ MatrixXd compute_integrated_support_degree_score(vector<double> sensorinputs,
 
    // Z = y.array().colwise() * alphas.array();
    Z = y.array().rowwise() * alphas.transpose().array();
-  //  cout<< "Y = " << y << endl;
+    //cout<< "Y = " << y << endl;
+   // cout<< "Z_Temp = " << Z <<endl;
     Z = (Z /100);
    // cout<<"Z = "<<Z<<endl;
 Z_final = Z.rowwise().sum();
@@ -156,10 +159,10 @@ Z_final = Z.rowwise().sum();
 
      average = fabs((sum/size))*criterion;
     double *Z_array = Z.data();
-  //  cout<<"Z Matrix = "<<Z<<endl;
-    // for(i=0;i<size;i++){
-    //     cout<<"Z = "<<Z_array[i]<<endl;
-    // }
+//    cout<<"Z Matrix = "<<Z<<endl;
+//     for(i=0;i<size;i++){
+//         cout<<"Z = "<<Z_array[i]<<endl;
+//     }
 //    // printf("Criterion: %lf",criterion);
    // printf("Average : %lf \n", average);
      for(i=0;i<size;i++){
@@ -167,7 +170,7 @@ Z_final = Z.rowwise().sum();
      	//Identifying a faulty sensor and storing it's index in an int array called fault
         if(fabs(Z_array[i])<average){
              tempfault = i;
-           //  printf("%d is a faulty sensor! \n",tempfault+1);
+            // cout<< tempfault+1<< " is a faulty sensor! \n";
              fault[j]=tempfault;
              j++;
          }
