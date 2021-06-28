@@ -26,11 +26,11 @@ using namespace std;
 #ifdef RT_ARM_MBED
 #include <cadmium/real_time/arm_mbed/embedded_error.hpp>
 #include "mbed.h"
-#include "../drivers/Sensor_Libraries/Driver.hpp"
+#include "../drivers/Driver.hpp"
 
 struct CPL_Sensor_defs
 {
-        struct out : public out_port<double> { };
+        struct out : public out_port<Sensor_Message> { };
   };
 
 template<typename TIME>
@@ -42,19 +42,19 @@ using defs=CPL_Sensor_defs;
     CPL_Sensor() noexcept {
       MBED_ASSERT(false);
     }
-
-		CPL_Sensor(PinName TempPin) noexcept {
-      new (this) Sensor(TempPin, TIME("00:00:05:000"));
+        
+	  	CPL_Sensor(PinName TempPin, TIME rate, string name) noexcept {
+        pollingRate = rate;
+        state.name = name;
+        state.Temp = new drivers::TEMPERATURE_HUMIDITY(TempPin);
     		}
 
-        CPL_Sensor(PinName TempPin, TIME rate) noexcept {
-          pollingRate = rate;
-          state.Temp = new drivers::TEMPERATURE_HUMIDITY(TempPin);
-        }
+ 
 
     		struct state_type {
-    			double lastTemp;
-    			double outputTemp;
+    			double output;
+          Sensor_Message message;
+          string name;
           drivers::TEMPERATURE_HUMIDITY* Temp;
     			}; state_type state;
 
@@ -62,7 +62,9 @@ using defs=CPL_Sensor_defs;
     		using output_ports=std::tuple<typename defs::out>;
 
     		void internal_transition() {
-          state.Temp->TempHumidity(state.outputTemp);
+          state.Temp->Humidity(state.output);
+          state.message.name = state.name;
+          state.message.value = state.output;
     			}
 
     		void external_transition(TIME e, typename make_message_bags<input_ports>::type mbs) {
@@ -77,7 +79,7 @@ using defs=CPL_Sensor_defs;
 
     		typename make_message_bags<output_ports>::type output() const {
     			typename make_message_bags<output_ports>::type bags;
-    				get_messages<typename defs::out>(bags).push_back(state.outputTemp);
+    				get_messages<typename defs::out>(bags).push_back(state.message);
             return bags;
           }
 
@@ -86,7 +88,7 @@ using defs=CPL_Sensor_defs;
    		 }
 
    		 friend std::ostringstream& operator<<(std::ostringstream& os, const typename CPL_Sensor<TIME>::state_type& i) {
-      os << "Temperature Output " << i.outputTemp;
+      os << "Temperature Output " << i.message;
       return os;
     }
   };

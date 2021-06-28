@@ -11,12 +11,16 @@ void StoreData(Vector_Assigner_Message message) {
             int i;
             time_t seconds = time(NULL);
  
-            for(auto i=0;i<message.size();++i){
+            for(auto i=0;i<message.message.size();++i){
             char buf[40];
             strftime(buf,40, "%Y-%m-%dT%H:%M:%SZ,", localtime(&seconds));
             printf("%s", buf);
-             cout<<message[i].type << " " << message[i].value<< " " << message[i].units <<endl ;
+             cout<<message.message[i].type << " " << message.message[i].value<< " " << message.message[i].units <<endl ;
                 }
+}
+
+void ReadData (string time_stamp, string type, Assigner_Message& message) {
+
 }
 #else
 void StoreData(Vector_Assigner_Message message) {

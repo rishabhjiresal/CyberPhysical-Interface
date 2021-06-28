@@ -26,11 +26,12 @@
 
 #include <NDTime.hpp>
 
-const char* t1_IN = "./inputs/Temperature_Sensor_Values1_copy.txt";
-const char* t2_IN = "./inputs/Temperature_Sensor_Values2_copy.txt";
-const char* t3_IN = "./inputs/Temperature_Sensor_Values3_copy.txt";
-const char* t4_IN = "./inputs/Temperature_Sensor_Values4_copy.txt";
-const char* t5_IN = "./inputs/Temperature_Sensor_Values5_copy.txt";
+#ifndef RT_ARM_MBED
+const char* D3 = "./inputs/Temperature_Sensor_Values1_copy.txt";
+const char* D5 = "./inputs/Temperature_Sensor_Values2_copy.txt";
+const char* D7 = "./inputs/Temperature_Sensor_Values3_copy.txt";
+const char* D8 = "./inputs/Temperature_Sensor_Values4_copy.txt";
+const char* D10 = "./inputs/Temperature_Sensor_Values5_copy.txt";
 
 const char* CS_IN_status = "./inputs/CS_IN_status.txt";
 const char* CS_IN_typeandtime = "./inputs/CS_IN_typeandtime.txt";
@@ -40,7 +41,7 @@ const char* CS_IN_actuator_message = "./inputs/CS_IN_actuator_message.txt";
 // const char* t8_IN = "./inputs/Temperature_Sensor_Values8_copy.txt";
 // const char* t9_IN = "./inputs/Temperature_Sensor_Values9 copy.txt";
 // const char* t10_IN = "./inputs/Temperature_Sensor_Values10 copy.txt";
-
+#endif
 using namespace std;
 
 using hclock=chrono::high_resolution_clock;
@@ -85,11 +86,19 @@ int main(int argc, char ** argv) {
   using AtomicModelPtr=std::shared_ptr<cadmium::dynamic::modeling::model>;
   using CoupledModelPtr=std::shared_ptr<cadmium::dynamic::modeling::coupled<TIME>>;
 
-  AtomicModelPtr CPL_Sensor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor1", t1_IN);
-  AtomicModelPtr CPL_Sensor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor2", t2_IN);
-  AtomicModelPtr CPL_Sensor3 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor3", t3_IN);
-  AtomicModelPtr CPL_Sensor4 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor4", t4_IN);
-  AtomicModelPtr CPL_Sensor5 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor5", t5_IN);
+  #ifdef RT_ARM_MBED
+  AtomicModelPtr CPL_Sensor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor1", D3 ,TIME("00:00:05:000") , "Hum_Sens1");
+  AtomicModelPtr CPL_Sensor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor2", D5,TIME("00:00:05:000"), "Hum_Sens2");
+  AtomicModelPtr CPL_Sensor3 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor3", D7,TIME("00:00:05:000"), "Hum_Sens3");
+  AtomicModelPtr CPL_Sensor4 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor4", D8,TIME("00:00:05:000"), "Hum_Sens4");
+  AtomicModelPtr CPL_Sensor5 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor5", D10,TIME("00:00:05:000"), "Hum_Sens5");
+  #else
+    AtomicModelPtr CPL_Sensor1 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor1", D3);
+  AtomicModelPtr CPL_Sensor2 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor2", D5);
+  AtomicModelPtr CPL_Sensor3 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor3", D7);
+  AtomicModelPtr CPL_Sensor4 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor4", D8);
+  AtomicModelPtr CPL_Sensor5 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor5", D10);
+  #endif
   #ifndef RT_ARM_MBED
   AtomicModelPtr InputFromCS1_status = cadmium::dynamic::translate::make_dynamic_atomic_model<ControlSystem_inputreader_status, TIME>("InputFromCS1_status", CS_IN_status);
   AtomicModelPtr InputFromCS1_typeandtime = cadmium::dynamic::translate::make_dynamic_atomic_model<ControlSystem_inputreader_typeandtime, TIME>("InputFromCS1_typeandtime", CS_IN_typeandtime);
