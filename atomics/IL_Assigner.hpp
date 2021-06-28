@@ -62,9 +62,9 @@ class IL_Assigner
           state.outputData = add_values_to_assigner_message(state.from_fusion.message);
           state.from_fusion.message.clear();
           state.from_fusion.message.shrink_to_fit();
-          for(int i=0; i<state.outputData.message.size(); i++) {
-            cout<< state.outputData.message[i] << endl;
-            }
+          // for(int i=0; i<state.outputData.message.size(); i++) {
+          //   cout<< state.outputData.message[i] << endl;
+          //   }
          StoreData(state.outputData);
 
       		state.active = true;

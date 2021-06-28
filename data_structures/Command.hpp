@@ -10,16 +10,23 @@
 
 using namespace std;
 
-struct Command_Rx{
-  Command_Rx(){}
-  Command_Rx(int i_status_check, string i_type, string i_time_stamp, Actuator_Message i_message)
-   :status_check(i_status_check), type(i_type), time_stamp(i_time_stamp), message(i_message) {}
-
+struct Command_Rx_Status{
+  Command_Rx_Status(){}
+  Command_Rx_Status(int i_status_check) : status_check(i_status_check) {}
     int status_check;
+};
+
+struct Command_Rx_TypeAndTime{
+    Command_Rx_TypeAndTime(){}
+    Command_Rx_TypeAndTime(string i_type, string i_time_stamp) : type(i_type), time_stamp(i_time_stamp) {}
     string type;
     string time_stamp;
-    Actuator_Message message;
+};
 
+struct Command_Rx_Actuator_Message { 
+    Command_Rx_Actuator_Message(){}
+    Command_Rx_Actuator_Message(Actuator_Message i_message) : message(i_message) {}
+    Actuator_Message message;
 };
 
 struct Command_Tx{
@@ -33,7 +40,15 @@ struct Command_Tx{
 };
 
 
-ostream& operator<<(ostream& os, const Command_Rx& msg);
+ostream& operator<<(ostream& os, const Command_Rx_Status& msg);
+ostream& operator<<(ostream& os, const Command_Rx_TypeAndTime& msg);
+ostream& operator<<(ostream& os, const Command_Rx_Actuator_Message& msg);
 
+
+ostream& operator<<(ostream& os, const Command_Tx& msg);
+
+istream& operator>> (istream& is, Command_Rx_Status& msg);
+istream& operator>> (istream& is, Command_Rx_TypeAndTime& msg);
+istream& operator>> (istream& is, Command_Rx_Actuator_Message& msg);
 
 #endif 

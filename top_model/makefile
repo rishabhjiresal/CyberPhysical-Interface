@@ -17,8 +17,8 @@ flash:
 	$(info *** FLASH MAKE TAKE ~10 Seconds! DO NOT RESET WHILE COM PORT LED IS FLASHING! ***)
 
 
-all: main SensorMessage rearrange SorterMessage FusionMessage Sensor_Fusion AssignerMessage storeData
-	$(CC) -g -o $(EXECUTABLE_NAME) main.o SensorMessage.o Rearrange.o SorterMessage.o FusedMessage.o SensorFusion.o AssignerMessage.o storeData.o
+all: main SensorMessage rearrange SorterMessage FusionMessage Sensor_Fusion AssignerMessage storeData ActuatorMessage Command
+	$(CC) -g -o $(EXECUTABLE_NAME) main.o SensorMessage.o Rearrange.o SorterMessage.o FusedMessage.o SensorFusion.o AssignerMessage.o storeData.o ActuatorMessage.o Command.o
 
 SensorMessage: ../data_structures/Sensor_Message.cpp
 	$(CC) -g -c $(CFLAGS) $(INCLUDERT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../data_structures/Sensor_Message.cpp -o SensorMessage.o
@@ -34,6 +34,12 @@ Sensor_Fusion: ../drivers/Sensor_Fusion_Algorithms/Algorithm.cpp
 
 AssignerMessage: ../data_structures/Assigner_Message.cpp
 	$(CC) -g -c $(CFLAGS) $(INCLUDERT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../data_structures/Assigner_Message.cpp -o AssignerMessage.o
+
+ActuatorMessage: ../data_structures/Actuator_Message.cpp
+	$(CC) -g -c $(CFLAGS) $(INCLUDERT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../data_structures/Actuator_Message.cpp -o ActuatorMessage.o
+
+Command: ../data_structures/Command.cpp
+	$(CC) -g -c $(CFLAGS) $(INCLUDERT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../data_structures/Command.cpp -o Command.o
 
 rearrange: ../drivers/Rearrange.cpp
 	$(CC) -g -c $(CFLAGS) $(INCLUDERT_ARM_MBED) $(INCLUDEDESTIMES) $(INCLUDEBOOST) ../drivers/Rearrange.cpp -o Rearrange.o

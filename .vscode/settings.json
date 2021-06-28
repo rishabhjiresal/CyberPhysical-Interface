@@ -9,6 +9,7 @@
         "system_error": "cpp",
         "regex": "cpp",
         "typeindex": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "ostream": "cpp"
     }
 }
