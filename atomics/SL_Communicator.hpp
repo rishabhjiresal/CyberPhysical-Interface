@@ -47,6 +47,7 @@ class SL_Communicator
         state.busy = false;
         state.active = false;
         state.woke_up = false;
+        state.send_current_data = false;
       }
 
       struct state_type {
@@ -81,13 +82,11 @@ class SL_Communicator
            vector<Command_Rx_TypeAndTime> typeandtime;
            vector<Command_Rx_Status> status;
            vector<Command_Rx_Actuator_Message> message;
-         //  state.from_assigner = get_messages<typename SL_Communicator_defs::from_informational_layer>(mbs)[0];
            status = get_messages<typename SL_Communicator_defs::command_line_rx_status>(mbs);
            typeandtime = get_messages<typename SL_Communicator_defs::command_line_rx_typeandtime>(mbs);
            message = get_messages<typename SL_Communicator_defs::command_line_rx_message>(mbs);
           if(status.size() >= 1){
           if(status[0].status_check == 1 && state.status_check == false && state.woke_up == false) {
-            cout<<"inside status check";
             if(!state.busy) {state.status_check = true;}
             state.tx.status_check_response = 1;
             state.tx.type_and_time_request = 1;
@@ -97,12 +96,11 @@ class SL_Communicator
           
           if(typeandtime.size() >= 1){
           if(!typeandtime[0].type.empty() && !typeandtime[0].time_stamp.empty() && state.woke_up == true) {
-            cout<< " type not empty"<<endl;
             if(!typeandtime[0].time_stamp.compare("CUR")) {
               state.send_current_data = true;
+              state.from_assigner = get_messages<typename SL_Communicator_defs::from_informational_layer>(mbs)[0];
             }
             else {
-              cout<< " else read data" <<endl;
             ReadData(typeandtime[0].time_stamp, typeandtime[0].type, state.send_to_CS); 
             }
             state.busy = true;
@@ -115,6 +113,7 @@ class SL_Communicator
             state.to_IL.name = message[0].message.name;
             state.to_IL.value = message[0].message.value;
             state.send_actuator_command = true;
+            state.busy = true;
           }
           }
       	 	state.active = true;
@@ -128,7 +127,7 @@ class SL_Communicator
       typename make_message_bags<output_ports>::type output() const {
         typename make_message_bags<output_ports>::type bags;
 
-        if(state.woke_up == true) {
+        if(state.woke_up == true && !state.busy) {
           get_messages<typename defs::command_line_tx>(bags).push_back(state.tx);
         }
         if(state.woke_up == true && state.ready_to_send == true) {
@@ -146,11 +145,8 @@ class SL_Communicator
       }
 
       TIME time_advance() const {
-        // if(state.active) {
-        //   return TIME("00:00:00");
-        // }
         if(state.active && state.woke_up) {
-          return TIME("00:00:10");
+          return TIME("00:00:00");
         }
         if(state.active && state.woke_up && state.ready_to_send){
           return TIME("00:00:02");

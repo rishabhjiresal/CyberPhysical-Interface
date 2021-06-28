@@ -10,6 +10,7 @@
         "regex": "cpp",
         "typeindex": "cpp",
         "typeinfo": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "limits": "cpp"
     }
 }

@@ -21,7 +21,9 @@
 #include "../atomics/IL_Fusion.hpp"
 #include "../atomics/IL_Assigner.hpp"
 #include "../atomics/SL_Communicator.hpp"
-#include "../atomics/ControlSystem_inputreader.hpp"
+#include "../atomics/DummyControlSystem.hpp"
+#include "../atomics/IL_OPCommander.hpp"
+
 #include <NDTime.hpp>
 
 const char* t1_IN = "./inputs/Temperature_Sensor_Values1_copy.txt";
@@ -88,10 +90,11 @@ int main(int argc, char ** argv) {
   AtomicModelPtr CPL_Sensor3 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor3", t3_IN);
   AtomicModelPtr CPL_Sensor4 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor4", t4_IN);
   AtomicModelPtr CPL_Sensor5 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor5", t5_IN);
+  #ifndef RT_ARM_MBED
   AtomicModelPtr InputFromCS1_status = cadmium::dynamic::translate::make_dynamic_atomic_model<ControlSystem_inputreader_status, TIME>("InputFromCS1_status", CS_IN_status);
   AtomicModelPtr InputFromCS1_typeandtime = cadmium::dynamic::translate::make_dynamic_atomic_model<ControlSystem_inputreader_typeandtime, TIME>("InputFromCS1_typeandtime", CS_IN_typeandtime);
   AtomicModelPtr InputFromCS1_actuator_message = cadmium::dynamic::translate::make_dynamic_atomic_model<ControlSystem_inputreader_actuator, TIME>("InputFromCS1_actuator_message", CS_IN_actuator_message);
-
+  #endif
   // AtomicModelPtr CPL_Sensor6 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor6", t6_IN);
   // AtomicModelPtr CPL_Sensor7 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor7", t7_IN);
   // AtomicModelPtr CPL_Sensor8 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor8", t8_IN);
@@ -100,11 +103,16 @@ int main(int argc, char ** argv) {
   AtomicModelPtr IL_Fusion1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_Fusion, TIME>("IL_Fusion1");
   AtomicModelPtr IL_Assigner1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_Assigner, TIME>("IL_Assigner1");
   AtomicModelPtr SL_Communicator1 = cadmium::dynamic::translate::make_dynamic_atomic_model<SL_Communicator, TIME>("SL_Communicator1");
+  AtomicModelPtr IL_OPCommander1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_OPCommander, TIME>("IL_OPCommander1");
 
   cadmium::dynamic::modeling::Ports iports_TOP = {};
   cadmium::dynamic::modeling::Ports oports_TOP = {};
 
-  cadmium::dynamic::modeling::Models submodels_TOP = {CPL_Sensor1, CPL_Sensor2, CPL_Sensor3, CPL_Sensor4, CPL_Sensor5/*, CPL_Sensor6, CPL_Sensor7, CPL_Sensor8*/, IL_Sorter1, IL_Fusion1, IL_Assigner1, SL_Communicator1, InputFromCS1_status, InputFromCS1_typeandtime, InputFromCS1_actuator_message};
+  cadmium::dynamic::modeling::Models submodels_TOP = {CPL_Sensor1, CPL_Sensor2, CPL_Sensor3, CPL_Sensor4, CPL_Sensor5, IL_Sorter1, IL_Fusion1, IL_Assigner1, SL_Communicator1, IL_OPCommander1 
+                                                    #ifndef RT_ARM_MBED 
+                                                    ,InputFromCS1_status, InputFromCS1_typeandtime, InputFromCS1_actuator_message
+                                                    #endif
+                                                    };
 
 cadmium::dynamic::modeling::EICs eics_TOP = {};
 cadmium::dynamic::modeling::EOCs eocs_TOP = {};
@@ -133,12 +141,15 @@ cadmium::dynamic::translate::make_IC<CPL_Sensor_defs::out, IL_Sorter_defs::s1>("
 
   cadmium::dynamic::translate::make_IC<IL_Assigner_defs::out, SL_Communicator_defs::from_informational_layer>("IL_Assigner1", "SL_Communicator1"),
 
+  #ifndef RT_ARM_MBED
   cadmium::dynamic::translate::make_IC<ControlSystem_inputreader_status_defs::out, SL_Communicator_defs::command_line_rx_status>("InputFromCS1_status", "SL_Communicator1"),
 
   cadmium::dynamic::translate::make_IC<ControlSystem_inputreader_typeandtime_defs::out, SL_Communicator_defs::command_line_rx_typeandtime>("InputFromCS1_typeandtime", "SL_Communicator1"),
 
-  cadmium::dynamic::translate::make_IC<ControlSystem_inputreader_actuator_defs::out, SL_Communicator_defs::command_line_rx_message>("InputFromCS1_actuator_message", "SL_Communicator1")
+  cadmium::dynamic::translate::make_IC<ControlSystem_inputreader_actuator_defs::out, SL_Communicator_defs::command_line_rx_message>("InputFromCS1_actuator_message", "SL_Communicator1"),
+  #endif
 
+  cadmium::dynamic::translate::make_IC<SL_Communicator_defs::actuator_data_out, IL_OPCommander_defs::in>("SL_Communicator1", "IL_OPCommander1")
 
 };
 CoupledModelPtr TOP = std::make_shared<cadmium::dynamic::modeling::coupled<TIME>>(
