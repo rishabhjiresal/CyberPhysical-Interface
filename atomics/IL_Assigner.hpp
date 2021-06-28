@@ -19,6 +19,7 @@
 
 #include "../data_structures/Assigner_Message.hpp"
 #include "../data_structures/Fused_Message.hpp"
+#include "../drivers/DataToStorage.h"
 
 #include "../drivers/Sensor_Fusion_Algorithms/Algorithm.h"
 
@@ -64,9 +65,8 @@ class IL_Assigner
           for(int i=0; i<state.outputData.message.size(); i++) {
             cout<< state.outputData.message[i] << endl;
             }
-        // #ifdef RT_DEVS
-        // StoreData(state.outputData);
-        // #endif
+         StoreData(state.outputData);
+
       		state.active = true;
       	}
 

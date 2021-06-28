@@ -3,6 +3,8 @@
 
 using namespace std;
 
-void StoreData(double[],int, double);
+void StoreData(Vector_Assigner_Message);
+
+void ReadData(string, string, Assigner_Message&);
 
 #endif

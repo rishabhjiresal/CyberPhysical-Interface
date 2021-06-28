@@ -32,9 +32,9 @@ struct IL_Sorter_defs
   struct s3 : public in_port<Sensor_Message>{};
   struct s4 : public in_port<Sensor_Message>{};
   struct s5 : public in_port<Sensor_Message>{};
-  struct s6 : public in_port<Sensor_Message>{};
-  struct s7 : public in_port<Sensor_Message>{};
-  struct s8 : public in_port<Sensor_Message>{};
+  // struct s6 : public in_port<Sensor_Message>{};
+  // struct s7 : public in_port<Sensor_Message>{};
+  // struct s8 : public in_port<Sensor_Message>{};
 
   struct out : public out_port<Vector_Vector_Sorter_Message> {};
 };
@@ -59,7 +59,7 @@ class IL_Sorter
         bool active;
         }; state_type state;
 
-        using input_ports=std::tuple<typename defs::s1, typename defs::s2, typename defs::s3, typename defs::s4, typename defs::s5, typename defs::s6, typename defs::s7, typename defs::s8>;
+        using input_ports=std::tuple<typename defs::s1, typename defs::s2, typename defs::s3, typename defs::s4, typename defs::s5/*, typename defs::s6, typename defs::s7, typename defs::s8*/>;
       	using output_ports=std::tuple<typename defs::out>;
 
         void internal_transition (){
@@ -74,9 +74,9 @@ class IL_Sorter
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s3>(mbs)[0]); 
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s4>(mbs)[0]);
           state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s5>(mbs)[0]);
-          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s6>(mbs)[0]);
-          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s7>(mbs)[0]);
-          state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s8>(mbs)[0]);
+          // state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s6>(mbs)[0]);
+          // state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s7>(mbs)[0]);
+          // state.values_from_sensors.push_back(get_messages<typename IL_Sorter_defs::s8>(mbs)[0]);
 
           vector<vector<Sensor_Message>> rearranged_sensor_message;
           sort(state.values_from_sensors.begin(), state.values_from_sensors.end(), compare);

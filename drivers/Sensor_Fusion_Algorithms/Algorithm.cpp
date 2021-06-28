@@ -170,7 +170,7 @@ Z_final = Z.rowwise().sum();
      	//Identifying a faulty sensor and storing it's index in an int array called fault
         if(fabs(Z_array[i])<average){
              tempfault = i;
-            // cout<< tempfault+1<< " is a faulty sensor! \n";
+             cout<< tempfault+1<< " is a faulty sensor! \n";
              fault[j]=tempfault;
              j++;
          }

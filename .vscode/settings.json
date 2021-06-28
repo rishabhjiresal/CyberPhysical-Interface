@@ -2,6 +2,13 @@
     "files.associations": {
         "vector": "cpp",
         "chrono": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "*.ipp": "cpp",
+        "*.tcc": "cpp",
+        "optional": "cpp",
+        "system_error": "cpp",
+        "regex": "cpp",
+        "typeindex": "cpp",
+        "typeinfo": "cpp"
     }
 }
