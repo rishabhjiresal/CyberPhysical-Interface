@@ -115,10 +115,6 @@ int main(int argc, char ** argv) {
   AtomicModelPtr InputFromCS1_typeandtime = cadmium::dynamic::translate::make_dynamic_atomic_model<ControlSystem_inputreader_typeandtime, TIME>("InputFromCS1_typeandtime", CS_IN_typeandtime);
   AtomicModelPtr InputFromCS1_actuator_message = cadmium::dynamic::translate::make_dynamic_atomic_model<ControlSystem_inputreader_actuator, TIME>("InputFromCS1_actuator_message", CS_IN_actuator_message);
   #endif
-  // AtomicModelPtr CPL_Sensor6 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor6", t6_IN);
-  // AtomicModelPtr CPL_Sensor7 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor7", t7_IN);
-  // AtomicModelPtr CPL_Sensor8 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor8", t8_IN);
-  // AtomicModelPtr CPL_Sensor9 = cadmium::dynamic::translate::make_dynamic_atomic_model<CPL_Sensor, TIME>("CPL_Sensor9", t9_IN);
   AtomicModelPtr IL_Sorter1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_Sorter, TIME>("IL_Sorter1");
   AtomicModelPtr IL_Fusion1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_Fusion, TIME>("IL_Fusion1");
   AtomicModelPtr IL_Assigner1 = cadmium::dynamic::translate::make_dynamic_atomic_model<IL_Assigner, TIME>("IL_Assigner1");
@@ -187,12 +183,8 @@ CoupledModelPtr TOP = std::make_shared<cadmium::dynamic::modeling::coupled<TIME>
     ics_TOP
     );
 #ifdef RT_ARM_MBED
-   // cadmium::dynamic::engine::runner<NDTime, logger_top> r(TOP, {0});
-
       cadmium::dynamic::engine::runner<NDTime, cadmium::logger::not_logger> r(TOP, {0});
 #else
-
- // cadmium::dynamic::engine::runner<NDTime, log_all> r(TOP, {0});
     cadmium::dynamic::engine::runner<NDTime, logger_top> r(TOP, {0});
 #endif
 

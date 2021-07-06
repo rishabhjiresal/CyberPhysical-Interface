@@ -43,26 +43,39 @@ using defs=CPL_Sensor_defs;
       MBED_ASSERT(false);
     }
         
-	  	CPL_Sensor(PinName TempPin, TIME rate, string name) noexcept {
+	  	CPL_Sensor(PinName Pin, TIME rate, string name) noexcept {
         pollingRate = rate;
         state.name = name;
-        state.Temp = new drivers::TEMPERATURE_HUMIDITY(TempPin);
+        state.Sensor = new drivers::TEMPERATURE(Pin);
     		}
 
- 
+      CPL_Sensor(PinName Mosi, PinName Miso, PinName sclk, PinName cs, TIME rate, string name) noexcept {
+        pollingRate = rate;
+        state.name = name;
+      }
 
+      CPL_Sensor(PinName Scl, PinName Sda, TIME rate, string name) noexcept {
+        pollingRate = rate;
+        state.name = name;
+      }
+
+      CPL_Sensor(PinName uart_tx, PinName uart_rx, string mode, TIME rate, string name) noexcept {
+        pollingRate = rate;
+        state.name = name;
+        
+      }
     		struct state_type {
     			double output;
           Sensor_Message message;
           string name;
-          drivers::TEMPERATURE_HUMIDITY* Temp;
+          drivers::TEMPERATURE* Sensor;
     			}; state_type state;
 
     		using input_ports=std::tuple<>;
     		using output_ports=std::tuple<typename defs::out>;
 
     		void internal_transition() {
-          state.Temp->Humidity(state.output);
+          state.Sensor->getData(state.output);
           state.message.name = state.name;
           state.message.value = state.output;
     			}

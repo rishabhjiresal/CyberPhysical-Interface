@@ -8,24 +8,35 @@
 #include "Sensor_Libraries/VEML7700.h"
 
 namespace drivers {
-  class TEMPERATURE_HUMIDITY {
+  class TEMPERATURE {
   private:
     Dht11 dht11;
   public:
-    TEMPERATURE_HUMIDITY(PinName TempPin) : dht11(TempPin) {
+    TEMPERATURE(PinName TempPin) : dht11(TempPin) {
 
     }
 
-    void Temp(double &temp) {
+    void getData(double &temp) {
         dht11.read();
         temp = dht11.getCelsius();
     }
 
-    void Humidity(double &hum) {
+
+  };
+
+class HUMIDITY {
+  private:
+    Dht11 dht11;
+  public:
+    HUMIDITY(PinName TempPin) : dht11(TempPin) {
+    }
+
+    void getData(double &hum) {
       dht11.read();
       hum = dht11.getHumidity();
     }
   };
+
 
   class CO2_Driver {
     private:
@@ -36,7 +47,7 @@ namespace drivers {
 
       }
 
-      void getCO2LevelsinPPM(int &level) {
+      void getData(int &level) {
         int percent;
         float volts;
         volts = co2.MGRead();
